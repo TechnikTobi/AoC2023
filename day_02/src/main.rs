@@ -5,33 +5,9 @@ use std::io::BufReader;
 use std::str::FromStr;
 use regex::Regex;
 
-#[derive(Debug, PartialEq, Eq, Hash)]
-enum
-EColor
-{
-	RED = 12, GREEN = 13, BLUE = 14
-}
-
-impl
-EColor
-{
-	pub fn
-	from_str
-	(
-		string: &str
-	)
-	->
-	Self
-	{
-		match string
-		{
-			"red"   => Self::RED,
-			"green" => Self::GREEN,
-			"blue"  => Self::BLUE,
-			_ => panic!()
-		}
-	}
-}
+pub const MAX_RED:   usize = 12;
+pub const MAX_GREEN: usize = 13;
+pub const MAX_BLUE:  usize = 14;
 
 fn main() 
 {
@@ -67,7 +43,7 @@ fn main()
 					color_value = regex_result.as_str().split(' ').next().unwrap().parse::<usize>().unwrap();
 				}
 
-				game_set.insert(EColor::from_str(color_string), color_value);
+				game_set.insert(color_string, color_value);
 			}
 			game.push(game_set);
 		}
@@ -82,9 +58,9 @@ fn main()
 		for game_set in game.1
 		{
 			if 
-				game_set.get(&EColor::RED).unwrap_or(&0)   > &(EColor::RED as usize) ||
-				game_set.get(&EColor::GREEN).unwrap_or(&0) > &(EColor::GREEN as usize) ||
-				game_set.get(&EColor::BLUE).unwrap_or(&0)  > &(EColor::BLUE as usize)
+				game_set.get("red"  ).unwrap_or(&0) > &(MAX_RED) ||
+				game_set.get("green").unwrap_or(&0) > &(MAX_GREEN) ||
+				game_set.get("blue" ).unwrap_or(&0) > &(MAX_BLUE)
 			{
 				is_possible = false;
 			}
@@ -105,18 +81,9 @@ fn main()
 
 		for game_set in game.1
 		{
-			if game_set.get(&EColor::RED).unwrap_or(&0) > &min_red
-			{
-				min_red = *game_set.get(&EColor::RED).unwrap_or(&0);
-			}
-			if game_set.get(&EColor::GREEN).unwrap_or(&0) > &min_green
-			{
-				min_green = *game_set.get(&EColor::GREEN).unwrap_or(&0);
-			}
-			if game_set.get(&EColor::BLUE).unwrap_or(&0) > &min_blue
-			{
-				min_blue = *game_set.get(&EColor::BLUE).unwrap_or(&0);
-			}
+			min_red   = std::cmp::max(min_red,   *game_set.get("red"  ).unwrap_or(&0));
+			min_green = std::cmp::max(min_green, *game_set.get("green").unwrap_or(&0));
+			min_blue  = std::cmp::max(min_blue,  *game_set.get("blue" ).unwrap_or(&0));
 		}
 
 		let game_power = min_red * min_green * min_blue;
