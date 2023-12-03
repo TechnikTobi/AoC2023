@@ -1,4 +1,3 @@
-use std::collections::HashMap;
 use std::fs::File;
 use std::io::BufRead;
 use std::io::BufReader;
@@ -14,7 +13,7 @@ fn main()
 	let mut part_2_result = 0;
 
 	let mut current_number_buffer = String::new();
-	let mut current_number_has_good_neighbor = false;
+	let mut current_number_good_neighbors = vec![];
 
 	let min_x = 0;
 	let max_x = raw_lines.iter().next().unwrap().len() as i32 - 1;
@@ -33,17 +32,14 @@ fn main()
 			{
 				current_number_buffer.push(character);
 				
-				if !current_number_has_good_neighbor
+				for env_y in std::cmp::max(min_y, y as i32-1)..=std::cmp::min(max_y, y  as i32+1)
 				{
-					for env_y in std::cmp::max(min_y, y as i32-1)..=std::cmp::min(max_y, y  as i32+1)
+					for env_x in std::cmp::max(min_x, x as i32-1)..=std::cmp::min(max_x, x as i32+1)
 					{
-						for env_x in std::cmp::max(min_x, x as i32-1)..=std::cmp::min(max_x, x as i32+1)
+						let neighbor = raw_lines.iter().nth(env_y as usize).unwrap().chars().nth(env_x as usize).unwrap();
+						if neighbor != '.' && !neighbor.is_digit(10)
 						{
-							let neighbor = raw_lines.iter().nth(env_y as usize).unwrap().chars().nth(env_x as usize).unwrap();
-							if neighbor != '.' && !neighbor.is_digit(10)
-							{
-								current_number_has_good_neighbor = true;
-							}
+							current_number_good_neighbors.push((env_x, env_y));
 						}
 					}
 				}
@@ -51,17 +47,47 @@ fn main()
 
 			if !character.is_digit(10) && current_number_buffer.len() > 0
 			{
-				if current_number_has_good_neighbor
+				if current_number_good_neighbors.len() > 0
 				{
-					numbers.push(current_number_buffer.parse::<i32>().unwrap());
+					numbers.push((current_number_buffer.parse::<i32>().unwrap(), current_number_good_neighbors.clone()));
 				}
 				current_number_buffer.clear();
-				current_number_has_good_neighbor = false;
+				current_number_good_neighbors.clear();
 			}
 		}
 	}
 
-	part_1_result = numbers.iter().sum::<i32>();
+	part_1_result = numbers.iter().map(|(number, _)| number).sum::<i32>();
+
+	for y in 0..raw_lines.len()
+	{
+		for x in 0..raw_lines[y].len()
+		{
+			let character = raw_lines.iter().nth(y).unwrap().chars().nth(x).unwrap();
+
+			if character != '*'
+			{
+				continue;
+			}
+
+			let mut part_numbers = vec![];
+
+			for (number, neighbors) in &numbers
+			{
+				if neighbors.contains(&(x as i32, y as i32))
+				{
+					part_numbers.push(number);
+				}
+			}
+
+			assert!(part_numbers.len() > 0 && part_numbers.len() <= 2);
+
+			if part_numbers.len() == 2
+			{
+				part_2_result += part_numbers[0] * part_numbers[1];
+			}
+		}
+	}
 
 	// Output
 	println!("Part 1 - Sum of Part Numbers: {}", part_1_result);
