@@ -58,8 +58,8 @@ fn main()
 
 
 	// Output
-	println!("Part 1 - Sum of Part Numbers: {}", part_1_result);
-	println!("Part 2 - Sum of Power of Game Sets: {}", part_2_result);
+	println!("Part 1 - Winnings: {}", part_1_result);
+	println!("Part 2 - Card Counts: {}", part_2_result);
 }
 
 pub fn read_vecs
@@ -90,6 +90,8 @@ pub fn read_vecs
 		}
 
 	}
+
+	data.push(temp.clone());
 
 	return Ok(data);
 }

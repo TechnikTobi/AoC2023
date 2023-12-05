@@ -123,6 +123,8 @@ pub fn read_vecs
 
 	}	
 
+	data.push(temp.clone());
+
 	return Ok(data);
 }
 
